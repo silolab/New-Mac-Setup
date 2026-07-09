@@ -20,6 +20,11 @@ class GuideStore: ObservableObject {
         selectedGuide?.sections.first { $0.id == selectedSectionId }
     }
 
+    var canRemoveSelectedGuide: Bool {
+        guard let selectedGuide else { return false }
+        return !selectedGuide.isBundled
+    }
+
     // MARK: - Load / Save
 
     func loadSavedGuides() {
@@ -67,6 +72,11 @@ class GuideStore: ObservableObject {
         if selectedGuide == nil { selectedSectionId = nil }
         saveGuidePaths()
         selectFirstAvailableSectionIfNeeded()
+    }
+
+    func removeSelectedGuide() {
+        guard let selectedGuide else { return }
+        removeGuide(selectedGuide)
     }
 
     // MARK: - Completion Tracking

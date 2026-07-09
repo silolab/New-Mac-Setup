@@ -17,7 +17,7 @@ struct GuideSidebarView: View {
             ForEach(guideStore.guides) { guide in
                 Section {
                     ForEach(guide.sections) { section in
-                        SectionRow(section: section, guideStore: guideStore)
+                        SectionRow(section: section, guide: guide, guideStore: guideStore)
                             .tag(section.id)
                     }
                 } header: {
@@ -31,7 +31,17 @@ struct GuideSidebarView: View {
         }
         .navigationTitle("MacSetup")
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
+            ToolbarItemGroup(placement: .primaryAction) {
+                Button {
+                    if let guide = guideStore.selectedGuide {
+                        GuideDialogs.confirmRemove(guide, guideStore: guideStore)
+                    }
+                } label: {
+                    Image(systemName: "trash")
+                }
+                .disabled(!guideStore.canRemoveSelectedGuide)
+                .help("선택한 가져온 가이드 제거")
+
                 Button(action: guideStore.addGuide) {
                     Image(systemName: "plus")
                 }
@@ -74,7 +84,7 @@ private struct GuideHeader: View {
 
                 if !guide.isBundled {
                     Button(role: .destructive) {
-                        guideStore.removeGuide(guide)
+                        GuideDialogs.confirmRemove(guide, guideStore: guideStore)
                     } label: {
                         Image(systemName: "xmark.circle")
                             .foregroundStyle(.secondary)
@@ -96,6 +106,13 @@ private struct GuideHeader: View {
     }
 
     private func confirmReset() {
+        GuideDialogs.confirmReset(guide, guideStore: guideStore)
+    }
+}
+
+@MainActor
+private enum GuideDialogs {
+    static func confirmReset(_ guide: Guide, guideStore: GuideStore) {
         let alert = NSAlert()
         alert.messageText = "\(guide.name) 완료 기록을 초기화할까요?"
         alert.informativeText = "체크한 단계만 초기화되고 가이드 파일은 유지됩니다."
@@ -107,10 +124,26 @@ private struct GuideHeader: View {
             guideStore.resetCompletion(for: guide)
         }
     }
+
+    static func confirmRemove(_ guide: Guide, guideStore: GuideStore) {
+        guard !guide.isBundled else { return }
+
+        let alert = NSAlert()
+        alert.messageText = "\(guide.name) 가이드를 제거할까요?"
+        alert.informativeText = "앱 목록에서만 제거되며 원본 Markdown 파일은 삭제되지 않습니다."
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "제거")
+        alert.addButton(withTitle: "취소")
+
+        if alert.runModal() == .alertFirstButtonReturn {
+            guideStore.removeGuide(guide)
+        }
+    }
 }
 
 private struct SectionRow: View {
     let section: GuideSection
+    let guide: Guide
     @ObservedObject var guideStore: GuideStore
 
     var completed: Int { guideStore.completedCount(in: section) }
@@ -136,5 +169,20 @@ private struct SectionRow: View {
             }
         }
         .padding(.vertical, 2)
+        .contextMenu {
+            Button {
+                GuideDialogs.confirmReset(guide, guideStore: guideStore)
+            } label: {
+                Label("완료 체크 초기화", systemImage: "arrow.counterclockwise")
+            }
+
+            if !guide.isBundled {
+                Button(role: .destructive) {
+                    GuideDialogs.confirmRemove(guide, guideStore: guideStore)
+                } label: {
+                    Label("가이드 제거", systemImage: "trash")
+                }
+            }
+        }
     }
 }
