@@ -8,8 +8,6 @@ class GuideStore: ObservableObject {
 
     private let guidePathsKey = "savedGuidePaths"
     private let completedStepsKey = "completedSteps"
-    private let hiddenBundledGuidesKey = "hiddenBundledGuideIds"
-    private let bundledGuideId = "bundled:sample-mac-setup-guide"
 
     var selectedGuide: Guide? {
         guides.first { guide in
@@ -29,17 +27,10 @@ class GuideStore: ObservableObject {
 
     func loadSavedGuides() {
         let paths = UserDefaults.standard.stringArray(forKey: guidePathsKey) ?? []
-        let savedGuides = paths.compactMap { path in
+        guides = paths.compactMap { path in
             let url = URL(fileURLWithPath: path)
             return try? MDParser.parse(from: url)
-        }
-        let bundledGuides: [Guide]
-        if let bundledGuide = loadBundledGuide(), !hiddenBundledGuideIds.contains(bundledGuide.id) {
-            bundledGuides = [bundledGuide]
-        } else {
-            bundledGuides = []
-        }
-        guides = (bundledGuides + savedGuides).uniquedByPath()
+        }.uniquedByPath()
         selectFirstAvailableSectionIfNeeded()
     }
 
@@ -73,12 +64,6 @@ class GuideStore: ObservableObject {
     }
 
     func removeGuide(_ guide: Guide) {
-        if guide.isBundled {
-            var hiddenIds = hiddenBundledGuideIds
-            hiddenIds.insert(guide.id)
-            UserDefaults.standard.set(Array(hiddenIds), forKey: hiddenBundledGuidesKey)
-        }
-
         guides.removeAll { $0.id == guide.id }
         if selectedGuide == nil { selectedSectionId = nil }
         saveGuidePaths()
@@ -130,19 +115,6 @@ class GuideStore: ObservableObject {
 
     // MARK: - Private
 
-    private func loadBundledGuide() -> Guide? {
-        guard let url = Bundle.main.url(forResource: "DefaultMacSetupGuide", withExtension: "md") else {
-            return nil
-        }
-
-        return try? MDParser.parse(
-            from: url,
-            guideId: bundledGuideId,
-            displayName: nil,
-            isBundled: true
-        )
-    }
-
     private func selectFirstAvailableSectionIfNeeded() {
         let hasSelectedSection = guides.contains { guide in
             guide.sections.contains { $0.id == selectedSectionId }
@@ -153,12 +125,8 @@ class GuideStore: ObservableObject {
     }
 
     private func saveGuidePaths() {
-        let paths = guides.filter { !$0.isBundled }.map { $0.filePath }
+        let paths = guides.map { $0.filePath }
         UserDefaults.standard.set(paths, forKey: guidePathsKey)
-    }
-
-    private var hiddenBundledGuideIds: Set<String> {
-        Set(UserDefaults.standard.stringArray(forKey: hiddenBundledGuidesKey) ?? [])
     }
 }
 

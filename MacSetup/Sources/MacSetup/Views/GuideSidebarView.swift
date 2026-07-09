@@ -10,7 +10,7 @@ struct GuideSidebarView: View {
                 ContentUnavailableView(
                     "가이드 없음",
                     systemImage: "doc.text",
-                    description: Text("+ 버튼으로 마크다운 파일을 추가하세요")
+                    description: Text("Markdown 파일을 드래그앤드롭하거나 + 버튼으로 추가하세요")
                 )
             }
 
@@ -126,9 +126,7 @@ private enum GuideDialogs {
     static func confirmRemove(_ guide: Guide, guideStore: GuideStore) {
         let alert = NSAlert()
         alert.messageText = "\(guide.name) 가이드를 제거할까요?"
-        alert.informativeText = guide.isBundled
-            ? "앱 목록에서만 숨겨지며 앱에 포함된 샘플 파일은 삭제되지 않습니다."
-            : "앱 목록에서만 제거되며 원본 Markdown 파일은 삭제되지 않습니다."
+        alert.informativeText = "앱 목록에서만 제거되며 원본 Markdown 파일은 삭제되지 않습니다."
         alert.alertStyle = .warning
         alert.addButton(withTitle: "제거")
         alert.addButton(withTitle: "취소")

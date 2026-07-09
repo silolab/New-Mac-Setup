@@ -4,7 +4,6 @@ struct Guide: Identifiable {
     let id: String
     var name: String
     var filePath: String
-    var isBundled: Bool
     var summary: String
     var version: String
     var owner: String
@@ -16,7 +15,6 @@ struct Guide: Identifiable {
         id: String,
         name: String,
         filePath: String,
-        isBundled: Bool = false,
         summary: String = "",
         version: String = "",
         owner: String = "",
@@ -27,7 +25,6 @@ struct Guide: Identifiable {
         self.id = id
         self.name = name
         self.filePath = filePath
-        self.isBundled = isBundled
         self.summary = summary
         self.version = version
         self.owner = owner

@@ -2,15 +2,20 @@
 
 Markdown files become guided setup cards for macOS onboarding.
 
-This app is useful when a team wants repeatable setup guides for new Macs, new projects, or onboarding sessions. Write one Markdown guide, load it into the app, and teammates can follow sections, check off steps, copy commands, run safe commands, and see warnings in context.
+This app is useful when a team wants repeatable setup guides for new Macs, new projects, or onboarding sessions. Write one Markdown guide, drag it into the app or add it with the `+` button, and teammates can follow sections, check off steps, copy commands, run safe commands, and see warnings in context.
 
 ## What It Does
 
 - Loads Markdown setup guides as sidebar sections and step cards.
+- Starts empty; no sample guide is bundled into the app.
 - Turns fenced `bash` code blocks into copy/run command cards.
 - Tracks completed steps locally.
 - Supports guide metadata, comments, callouts, and red bold emphasis.
 - Includes a reusable guide format and template for future projects.
+
+## Usage
+
+Launch the app, then drag a `.md` guide file into the window or click the `+` button in the sidebar. Removing a guide only removes it from the app list; the original Markdown file stays where it is.
 
 ## Guide Format
 

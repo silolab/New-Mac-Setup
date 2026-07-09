@@ -4,8 +4,7 @@ struct MDParser {
     static func parse(
         from url: URL,
         guideId: String? = nil,
-        displayName: String? = nil,
-        isBundled: Bool = false
+        displayName: String? = nil
     ) throws -> Guide {
         let content = try String(contentsOf: url, encoding: .utf8)
         let document = parseDocument(from: content)
@@ -16,7 +15,6 @@ struct MDParser {
             id: baseId,
             name: name,
             filePath: url.path,
-            isBundled: isBundled,
             summary: document.metadata["summary"] ?? "",
             version: document.metadata["version"] ?? "",
             owner: document.metadata["owner"] ?? "",

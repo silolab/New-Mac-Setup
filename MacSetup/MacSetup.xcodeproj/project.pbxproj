@@ -17,7 +17,6 @@
 		767B959621A5EFEB1DEAABCB /* MDParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D811B748ABCA6706A931EA5 /* MDParser.swift */; };
 		78BFD2987A690264A1621087 /* Guide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33F73C1E0198D5C6FAE6789F /* Guide.swift */; };
 		7D7536AEA3CDA1CD4B802499 /* GuideStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2CA15D42F0585FE742A333 /* GuideStore.swift */; };
-		9992265B318E37526470B6BC /* DefaultMacSetupGuide.md in Resources */ = {isa = PBXBuildFile; fileRef = 91FDACE33D3D5719C7E8E6A8 /* DefaultMacSetupGuide.md */; };
 		B9088848215E9F9847151274 /* Step.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6D3EE5EB4C97959B54F3B99 /* Step.swift */; };
 		CA4DFE7E849F92B58AED81AC /* StepListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB4F8D96E7EB2B63D862A4C /* StepListView.swift */; };
 		EDD1E97AE1DB36335E0E0EE1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB5078C1C2E45066F966681D /* ContentView.swift */; };
@@ -34,7 +33,6 @@
 		567645FB82AFDA5F68361644 /* MacSetup.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacSetup.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		700F040642337C3B938DE3B3 /* CommandRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandRunner.swift; sourceTree = "<group>"; };
 		77833B9B9D0AE8D4F3505105 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		91FDACE33D3D5719C7E8E6A8 /* DefaultMacSetupGuide.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DefaultMacSetupGuide.md; sourceTree = "<group>"; };
 		A6D3EE5EB4C97959B54F3B99 /* Step.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Step.swift; sourceTree = "<group>"; };
 		B17AFF86168A16B963C9AC9B /* TerminalOutputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalOutputView.swift; sourceTree = "<group>"; };
 		E5ECB40B3DD0605373C80191 /* GuideSidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuideSidebarView.swift; sourceTree = "<group>"; };
@@ -60,14 +58,6 @@
 			);
 			sourceTree = "<group>";
 		};
-		3592399B8250CC9FA98F3F23 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				91FDACE33D3D5719C7E8E6A8 /* DefaultMacSetupGuide.md */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
 		9804F13CE4F60C6148A998E1 /* Parsers */ = {
 			isa = PBXGroup;
 			children = (
@@ -84,7 +74,6 @@
 				0F8939C89268108BBB4114B7 /* MacSetupApp.swift */,
 				AC7788C822EFAF8B0D9D7269 /* Models */,
 				9804F13CE4F60C6148A998E1 /* Parsers */,
-				3592399B8250CC9FA98F3F23 /* Resources */,
 				04542F7D25B3B54DF8878476 /* ViewModels */,
 				D8717C95473AB11143250CFE /* Views */,
 			);
@@ -189,7 +178,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2EC02A803F83452599226DDA /* Assets.xcassets in Resources */,
-				9992265B318E37526470B6BC /* DefaultMacSetupGuide.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
