@@ -40,7 +40,7 @@ struct GuideSidebarView: View {
                     Image(systemName: "trash")
                 }
                 .disabled(!guideStore.canRemoveSelectedGuide)
-                .help("선택한 가져온 가이드 제거")
+                .help("선택한 가이드를 목록에서 제거")
 
                 Button(action: guideStore.addGuide) {
                     Image(systemName: "plus")
@@ -82,16 +82,14 @@ private struct GuideHeader: View {
                 .buttonStyle(.plain)
                 .help("이 가이드의 완료 체크 초기화")
 
-                if !guide.isBundled {
-                    Button(role: .destructive) {
-                        GuideDialogs.confirmRemove(guide, guideStore: guideStore)
-                    } label: {
-                        Image(systemName: "xmark.circle")
-                            .foregroundStyle(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                    .help("가이드 제거")
+                Button(role: .destructive) {
+                    GuideDialogs.confirmRemove(guide, guideStore: guideStore)
+                } label: {
+                    Image(systemName: "xmark.circle")
+                        .foregroundStyle(.secondary)
                 }
+                .buttonStyle(.plain)
+                .help("가이드를 목록에서 제거")
             }
 
             HStack(spacing: 8) {
@@ -126,11 +124,11 @@ private enum GuideDialogs {
     }
 
     static func confirmRemove(_ guide: Guide, guideStore: GuideStore) {
-        guard !guide.isBundled else { return }
-
         let alert = NSAlert()
         alert.messageText = "\(guide.name) 가이드를 제거할까요?"
-        alert.informativeText = "앱 목록에서만 제거되며 원본 Markdown 파일은 삭제되지 않습니다."
+        alert.informativeText = guide.isBundled
+            ? "앱 목록에서만 숨겨지며 앱에 포함된 샘플 파일은 삭제되지 않습니다."
+            : "앱 목록에서만 제거되며 원본 Markdown 파일은 삭제되지 않습니다."
         alert.alertStyle = .warning
         alert.addButton(withTitle: "제거")
         alert.addButton(withTitle: "취소")
@@ -176,12 +174,10 @@ private struct SectionRow: View {
                 Label("완료 체크 초기화", systemImage: "arrow.counterclockwise")
             }
 
-            if !guide.isBundled {
-                Button(role: .destructive) {
-                    GuideDialogs.confirmRemove(guide, guideStore: guideStore)
-                } label: {
-                    Label("가이드 제거", systemImage: "trash")
-                }
+            Button(role: .destructive) {
+                GuideDialogs.confirmRemove(guide, guideStore: guideStore)
+            } label: {
+                Label("가이드 제거", systemImage: "trash")
             }
         }
     }

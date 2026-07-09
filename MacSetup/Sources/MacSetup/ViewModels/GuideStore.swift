@@ -8,6 +8,7 @@ class GuideStore: ObservableObject {
 
     private let guidePathsKey = "savedGuidePaths"
     private let completedStepsKey = "completedSteps"
+    private let hiddenBundledGuidesKey = "hiddenBundledGuideIds"
     private let bundledGuideId = "bundled:sample-mac-setup-guide"
 
     var selectedGuide: Guide? {
@@ -21,8 +22,7 @@ class GuideStore: ObservableObject {
     }
 
     var canRemoveSelectedGuide: Bool {
-        guard let selectedGuide else { return false }
-        return !selectedGuide.isBundled
+        selectedGuide != nil
     }
 
     // MARK: - Load / Save
@@ -33,7 +33,13 @@ class GuideStore: ObservableObject {
             let url = URL(fileURLWithPath: path)
             return try? MDParser.parse(from: url)
         }
-        guides = ([loadBundledGuide()].compactMap { $0 } + savedGuides).uniquedByPath()
+        let bundledGuides: [Guide]
+        if let bundledGuide = loadBundledGuide(), !hiddenBundledGuideIds.contains(bundledGuide.id) {
+            bundledGuides = [bundledGuide]
+        } else {
+            bundledGuides = []
+        }
+        guides = (bundledGuides + savedGuides).uniquedByPath()
         selectFirstAvailableSectionIfNeeded()
     }
 
@@ -67,7 +73,12 @@ class GuideStore: ObservableObject {
     }
 
     func removeGuide(_ guide: Guide) {
-        guard !guide.isBundled else { return }
+        if guide.isBundled {
+            var hiddenIds = hiddenBundledGuideIds
+            hiddenIds.insert(guide.id)
+            UserDefaults.standard.set(Array(hiddenIds), forKey: hiddenBundledGuidesKey)
+        }
+
         guides.removeAll { $0.id == guide.id }
         if selectedGuide == nil { selectedSectionId = nil }
         saveGuidePaths()
@@ -144,6 +155,10 @@ class GuideStore: ObservableObject {
     private func saveGuidePaths() {
         let paths = guides.filter { !$0.isBundled }.map { $0.filePath }
         UserDefaults.standard.set(paths, forKey: guidePathsKey)
+    }
+
+    private var hiddenBundledGuideIds: Set<String> {
+        Set(UserDefaults.standard.stringArray(forKey: hiddenBundledGuidesKey) ?? [])
     }
 }
 
