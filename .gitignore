@@ -1,0 +1,39 @@
+# macOS
+.DS_Store
+
+# Local editor and agent settings
+.claude/
+.vscode/
+.idea/
+
+# Xcode user state
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+*.moved-aside
+DerivedData/
+
+# Build products
+build/
+dist/
+*.app
+*.dSYM
+*.ipa
+*.zip
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Local/private guides
+NEW_MAC_SETUP_GUIDE.md
+*.private.md
+*.local.md
+
+# Secrets and machine-local config examples
+GoogleService-Info.plist
+*.p8
+*.pem
+*.key
+*.mobileprovision
