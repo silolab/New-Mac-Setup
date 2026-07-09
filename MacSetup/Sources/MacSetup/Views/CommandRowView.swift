@@ -4,23 +4,52 @@ import AppKit
 struct CommandRowView: View {
     let command: Command
     @ObservedObject var runner: CommandRunner
+    @State private var editableCommand: String
     @State private var copied = false
 
+    init(command: Command, runner: CommandRunner) {
+        self.command = command
+        self.runner = runner
+        _editableCommand = State(initialValue: command.text)
+    }
+
     private var safety: CommandSafety {
-        CommandSafety.evaluate(command.text)
+        CommandSafety.evaluate(currentCommand)
+    }
+
+    private var currentCommand: String {
+        editableCommand.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var isEdited: Bool {
+        editableCommand != command.text
+    }
+
+    private var resultKey: String {
+        "\(command.id)::\(currentCommand)"
+    }
+
+    private var editorHeight: CGFloat {
+        let lineCount = max(3, editableCommand.components(separatedBy: .newlines).count)
+        return CGFloat(min(lineCount, 8)) * 18 + 24
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .top, spacing: 8) {
-                Text(command.text)
+                TextEditor(text: $editableCommand)
                     .font(.system(.body, design: .monospaced))
                     .foregroundStyle(.primary)
-                    .padding(8)
+                    .scrollContentBackground(.hidden)
+                    .padding(6)
+                    .frame(minHeight: editorHeight, maxHeight: max(editorHeight, 180))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color(nsColor: .textBackgroundColor).opacity(0.5))
                     .clipShape(RoundedRectangle(cornerRadius: 6))
-                    .textSelection(.enabled)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(isEdited ? Color.accentColor.opacity(0.45) : Color.clear, lineWidth: 1)
+                    }
 
                 VStack(spacing: 4) {
                     Button(action: copyCommand) {
@@ -38,10 +67,10 @@ struct CommandRowView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.mini)
-                    .disabled(runner.isRunning || !safety.canRunInline)
+                    .disabled(runner.isRunning || currentCommand.isEmpty || !safety.canRunInline)
                     .help(safety.runHelp)
 
-                    if let success = runner.commandResults[command.id] {
+                    if let success = runner.commandResults[resultKey] {
                         Image(systemName: success ? "checkmark.circle.fill" : "xmark.circle.fill")
                             .foregroundStyle(success ? .green : .red)
                             .font(.title3)
@@ -55,8 +84,19 @@ struct CommandRowView: View {
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.mini)
-                    .disabled(safety.requiresEditing)
+                    .disabled(currentCommand.isEmpty || safety.requiresEditing)
                     .help(safety.terminalHelp)
+
+                    if isEdited {
+                        Button(action: resetCommand) {
+                            Label("원본", systemImage: "arrow.uturn.backward")
+                                .font(.subheadline)
+                                .frame(width: 70)
+                        }
+                        .buttonStyle(.borderless)
+                        .foregroundStyle(.secondary)
+                        .help("원래 명령어로 되돌리기")
+                    }
                 }
             }
 
@@ -72,7 +112,7 @@ struct CommandRowView: View {
 
     private func copyCommand() {
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(command.text, forType: .string)
+        NSPasteboard.general.setString(currentCommand, forType: .string)
         copied = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             copied = false
@@ -80,11 +120,15 @@ struct CommandRowView: View {
     }
 
     private func runCommand() {
-        runner.run(command: command.text, commandId: command.id)
+        runner.run(command: currentCommand, commandId: resultKey)
     }
 
     private func openInTerminal() {
-        runner.openInTerminal(command: command.text)
+        runner.openInTerminal(command: currentCommand)
+    }
+
+    private func resetCommand() {
+        editableCommand = command.text
     }
 }
 
@@ -97,7 +141,7 @@ private struct CommandSafety {
 
     var runHelp: String {
         if requiresEditing {
-            return "YOUR_NAME, YOUR_EMAIL 같은 값을 먼저 바꾼 뒤 실행하세요"
+            return "명령어 칸에서 YOUR_NAME, YOUR_EMAIL 같은 값을 직접 바꾼 뒤 실행하세요"
         }
         if !canRunInline {
             return "이 명령어는 Terminal.app에서 실행하는 편이 안전합니다"
@@ -106,7 +150,7 @@ private struct CommandSafety {
     }
 
     var terminalHelp: String {
-        requiresEditing ? "값을 먼저 수정한 뒤 터미널에서 실행하세요" : "Terminal.app에서 실행"
+        requiresEditing ? "명령어 칸에서 값을 먼저 수정한 뒤 터미널에서 실행하세요" : "Terminal.app에서 실행"
     }
 
     static func evaluate(_ command: String) -> CommandSafety {
@@ -123,7 +167,7 @@ private struct CommandSafety {
             return CommandSafety(
                 canRunInline: false,
                 requiresEditing: true,
-                note: "이 명령어는 개인 값으로 수정한 뒤 실행하세요.",
+                note: "명령어 칸에서 개인 값으로 직접 수정한 뒤 실행하세요.",
                 systemImage: "pencil",
                 noteColor: .orange
             )
